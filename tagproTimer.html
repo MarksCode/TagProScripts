@@ -1,0 +1,182 @@
+<!-- TagPro Powerup Timer Script                                                         -->
+<!-- by Ron Marks                                                                        -->
+<!-- Sections for each map, buttons align with where powerups are for corresponding map. -->
+<!-- Label will alert you when powerup is about to spawn!                                -->
+
+<!DOCTYPE html>
+<html>
+<body bgcolor="cyan">
+
+  <h1><center>TagPro Powerup Timer</h1>
+  <h2><center>By Capernicus</h2>
+  
+    <br>
+  
+  <h2>Instructions:</h2>
+  
+  <ol>
+      <li>Scroll to Proper Map</li>
+      <li>When a Powerup is Taken, Press Appropriate Button</li>
+      <li>After 55 Seconds, a Warning to get the Powerup will Show Up</li>
+      <li>Press Button Again When Powwerup is Taken</li>
+  </ol>
+  
+    <br>
+    
+    <hr>
+  
+<h2>Star</h2>
+
+  <button style="width=500px;height:60px;" onclick="Msg1()">---Left---</button> <button style="width=200px;height:60px; float:right;" onclick="Msg2()">---Right---</button>
+    <p ID="Msg1"> </p><p  style="float:right"; ID="Msg2"> </p>
+     
+     <br>
+     <br>
+    
+    <hr>
+       
+<h2> Boombox </h2>
+       
+       <button style="width=200px;height:60px;" onclick="Msg3()">---Left---</button><button style="width=200px;height:60px; float:right;" onclick="Msg5()">---Right---</button>
+       <center><button style="width=200px;height:60px;" onclick="Msg4()">---Center---</button></center>
+       
+       <p ID="Msg3"> </p>  <p style="float:right;" ID="Msg5"> </p>
+       <center><p ID="Msg4"> </p></center>
+       
+        
+        <br>
+        <br>
+        
+        <hr>
+               
+  <h2> Holy See
+
+      <center><button style="width=200px;height:60px;" onclick="Msg6()">---Top Center---</button> <button style="width=200px;height:60px; float:right;" onclick="Msg7()">---Top Right---</button> </center>
+
+      <center><p ID="Msg6"> </p> </center> <p style="float:right;" ID="Msg7"> </p>
+      
+      <br>
+      <br>
+      
+      <button style="width=200px;height:60px;" onclick="Msg8()">---Left---</button> <button style="width=200px;height:60px; float:right;" onclick="Msg10()">---Right---</button>
+      
+      <p ID="Msg8"> <p style="float:right"; ID="Msg10"> </p>
+      
+      <center><button style="width=200px;height:60px;" onclick="Msg9()">---Center---</button>
+      
+      <p ID="Msg9"></center> </p>
+      <br>
+      <br>
+      <center><button style="width=500px;height:60px;" onclick="Msg11()">---Bot Center---</button>
+      <p ID="Msg11"> </p></center>
+      
+      <button style="width=500px;height:60px;" onclick="Msg12()">---Bot Left---</button>
+      <br>
+      
+      <p  ID="Msg12"> </p>
+      
+      <br>
+      <br>
+      
+      <hr>
+      
+      <h2> Colors </h2>
+      
+      <button style="width=200px;height:60px;" onclick="Msg13()">---Top Left---</button><button style="width=200px;height:60px; float:right;" onclick="Msg14()">---Top Right---</button>
+      <p ID="Msg13"> </p><p style="float:right"; ID="Msg14"> </p>
+      
+      <center><button style="width=500px;height:60px;" onclick="Msg15()">---Top Center---</button><p ID="Msg15"></p>
+          
+          <br>
+          
+        <button style="width=500px;height:60px;" onclick="Msg16()">---Bot Center---</button>
+        <p ID="Msg16"></center></p>
+      
+      <button style="width=200px;height:60px;" onclick="Msg17()">---Bot Left---</button><button style="width=200px;height:60px; float:right;" onclick="Msg18()">---Bot Right---</button>
+      <p ID="Msg17"> </p><p style="float:right"; ID="Msg18"> </p>
+      
+      
+   
+
+  <script>
+ 
+    function Msg1() {
+    setTimeout(function(){document.getElementById("Msg1").innerHTML="..."},0);
+    setTimeout(function(){document.getElementById("Msg1").innerHTML="Get It"},55000);
+    }
+    
+    function Msg2() {
+        setTimeout(function(){document.getElementById("Msg2").innerHTML="..."},0);
+        setTimeout(function(){document.getElementById("Msg2").innerHTML="Get It"},55000);
+    }
+  
+    function Msg3() {
+        setTimeout(function(){document.getElementById("Msg3").innerHTML="..."},0);
+        setTimeout(function(){document.getElementById("Msg3").innerHTML="Get It"},55000);
+  }
+    function Msg4() {
+      setTimeout(function(){document.getElementById("Msg4").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg4").innerHTML="Get It"},55000);
+  }
+    function Msg5() {
+      setTimeout(function(){document.getElementById("Msg5").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg5").innerHTML="Get It"},55000);
+  }
+    function Msg6() {
+      setTimeout(function(){document.getElementById("Msg6").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg6").innerHTML="Get It"},55000);
+  }
+    function Msg7() {
+      setTimeout(function(){document.getElementById("Msg7").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg7").innerHTML="Get It"},55000);
+  }
+    function Msg8() {
+      setTimeout(function(){document.getElementById("Msg8").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg8").innerHTML="Get It"},55000);
+  }
+    function Msg9() {
+      setTimeout(function(){document.getElementById("Msg9").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg9").innerHTML="Get It"},55000);
+  }
+    function Msg10() {
+      setTimeout(function(){document.getElementById("Msg10").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg10").innerHTML="Get It"},55000);
+  }
+    function Msg11() {
+      setTimeout(function(){document.getElementById("Msg11").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg11").innerHTML="Get It"},55000);
+  }
+    function Msg12() {
+      setTimeout(function(){document.getElementById("Msg12").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg12").innerHTML="Get It"},55000);
+  }
+    function Msg13() {
+      setTimeout(function(){document.getElementById("Msg13").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg13").innerHTML="Get It"},55000);
+  }
+    function Msg14() {
+      setTimeout(function(){document.getElementById("Msg14").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg14").innerHTML="Get It"},55000);
+  }
+    function Msg15() {
+      setTimeout(function(){document.getElementById("Msg15").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg15").innerHTML="Get It"},55000);
+  }
+    function Msg16() {
+      setTimeout(function(){document.getElementById("Msg16").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg16").innerHTML="Get It"},55000);
+  }
+    function Msg17() {
+      setTimeout(function(){document.getElementById("Msg17").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg17").innerHTML="Get It"},55000);
+  }
+    function Msg18() {
+      setTimeout(function(){document.getElementById("Msg18").innerHTML="..."},0);
+      setTimeout(function(){document.getElementById("Msg18").innerHTML="Get It"},55000);
+  }
+  
+  
+  </script>
+</body>
+
+</html>
