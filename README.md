@@ -7,3 +7,5 @@ MouseMover allows one to play using their mouse instead of arrow keys by moving 
 AvgRank calculates ones average rank on the scoreboard for the past 10 games and displays it on the loading screen.
 
 Acheivements adds an achievement diary with unlockable tasks to the game. 
+
+AnyFlairs allows one to have custom flairs for his character
