@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          TagPro Achievements
 // @author        Capernicus
-// @version       1.1
+// @version       2.0
 // @include       http://*.koalabeast.com:*
 // @include       http://tagpro-*.koalabeast.com*
 // @grant         GM_setValue
@@ -9,25 +9,17 @@
 // ==/UserScript==
 
 var link = document.URL;
-var re = /tagpro-\w+\.koalabeast.com\/$/;
+var re = /tagpro-\w+\.koalabeast.com\/(maps|boards|groups|\?[\w=]*|games\/find(\?r=\d*)?)?\#?$/;
 if (re.exec(link)){												// User is on homePage
 	homeButton(); 												// Insert button
 	$('#AchieveButton').bind('click', showMenu);
 }
+var selected;
 
 function homeButton(){											// Creates and inserts home button
-	var button = document.createElement('a');
-	$(button).html('Awards<span>achievements</span>');
-	$(button).addClass('button').attr('id', 'AchieveButton').css({
-		'background-color':'#99ccff',
-        'border':'2px solid #222930',
-        'color':'#562A5A',
-        'border-radius':'5%',
-		'position':'fixed',
-		'top':'3%',
-		'right':'3%'
-	});
-	$('body').append(button);	
+	var button = document.createElement('li');
+	$(button).html("<a href='#'>ACHIEVEMENTS</a>").attr('id', 'AchieveButton').insertAfter('#nav-maps');
+	$("<style type='text/css'> .selec{ background-color:#4c667f;} </style>").appendTo("head");
 }
 
 function showMenu(){											// Show menu when user presses home button
@@ -35,38 +27,67 @@ function showMenu(){											// Show menu when user presses home button
 	$(menu).css({
 		'height':'500px',
 		'width':'400px',
-		'background-color':'#99ccff',
+		'background-color':'#00ACE9',
 		'position':'absolute',
-		'top':'50%',
+		'top':'10em',
 		'left':'50%',
 		'border-radius':'5%',
 		'border':'3px solid black',
-		'transform':'translate(-50%, -50%)'
+		'transform':'translate(-50%, 0)',
+        'zIndex':'30'
 	}).attr('id', 'AchieveMenu');
-	var heading = document.createElement('h3');
+	var footer = document.createElement('div');
+	$(footer).css({
+		'width':'100%',
+		'height':'10%',
+		'position':'relative',
+		'margin-top':'-3%'
+	});
+	var footerText = document.createElement('p');
+	$(footerText).text('Press on achievement to see current status').appendTo(footer).css({
+		'text-align':'center',
+		'color':'#893667'
+	}).attr('id', 'footText');
+	var heading = document.createElement('h1');
 	$(heading).text('Achievements').css({
 		'position':'relative',
-		'color':'#562A5A',
-		'padding-top':'3px',
-		'padding-bottom':'3px',
-		'padding-left':'20px',
+		'color':'#893667',
+		'padding-top':'5px',
+		'padding-bottom':'5px',
+		'left':'60px',
 		'display':'inline'
 	});
+    var seperator = document.createElement('div');
+    $(seperator).css({
+        'width':'100%',
+        'height':'10%',
+        'position':'relative',
+        'border-bottom':'2px solid black'
+    });
 	var exit = document.createElement('button');				// Hides menu button
 	$(exit).html('X').click(hideMenu).css({
 		'border':'solid 3px black',
 		'float':'right',
-		'border-radius':'100%'
+		'border-radius':'100%',
+		'background-color':'#c2c2d6'
+	}).hover(function(){
+		$(this).css({
+			'background-color':'#33334d'
+		})
+	}, function(){
+		$(this).css({
+			'background-color':'#c2c2d6'
+		})
 	});
 	var awardsDiv = document.createElement('div');				// Holds achievement table
 	$(awardsDiv).css({
 		'position':'relative',
 		'width':'100%',
 		'height':'80%',
-		
 		'overflow':'scroll',
 		'margin-left':'auto',
-		'margin-right':'auto'
+		'margin-right':'auto',
+        'border-bottom':'2px solid black'
 	});
 	var awards = document.createElement('table');				// Table for achievements
 	var awardString = getAwards();								// Get html for achievements table
@@ -81,14 +102,96 @@ function showMenu(){											// Show menu when user presses home button
 		'padding-left':'10px',
 		'font':'15pt monospace',
 		'color':'black'
-	});
-	
+	})
+	$(awards).find('tr').on('click', showStatus);
+	$(awards).each(function(){$(this).find('tr:odd').css('background-color','#99ccff')});
 	$(awards).each(function(){$(this).find('tr:even').css('background-color','#cce6ff')});
 	$(awardsDiv).append(awards);
-	$(menu).append(heading, exit, awardsDiv);
+    $(seperator).append(heading, exit);
+	$(menu).append(seperator, awardsDiv, footer);
 	$('body').append(menu);
 	
 	giveRewards();
+}
+
+function showStatus(){
+	var id = this.id;
+	switch (id) {
+		case 'awd1':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('caps') || 0);
+			$('#footText').text('Current Record: '+ stat +' captures');
+			break;
+		case 'awd2':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('rets') || 0);
+			$('#footText').text('Current Record: '+ stat +' returns');
+			break;
+		case 'awd3':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('maxWins') || 0);
+			var stat2 = (GM_getValue('wins') || 0);
+			$('#footText').text('Record: '+ stat +' wins, Current streak: ' + stat2 + ' wins');
+			break;
+		case 'awd4':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('pups') || 0);
+			$('#footText').text('Current Record: '+ stat +' powerups');
+			break;
+		case 'awd5':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('tags') || 0);
+			$('#footText').text('Current Record: '+ stat +' tags');
+			break;
+		case 'awd6':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var mins = (GM_getValue('prevent') || 0);
+			$('#footText').text('Current Record: '+Math.floor(mins/60)+' minutes ' +mins%60+ ' seconds');
+			break;
+		case 'awd7':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('maxRank') || 0);
+			var stat2 = (GM_getValue('rank') || 0);
+			$('#footText').text('Record: '+ stat +' MVPs, Current streak: ' + stat2 + ' MVPs');
+			break;
+		case 'awd8':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (Math.round((GM_getValue('maxKD') || 0)*10))/10;
+			$('#footText').text('Current Record: '+ stat +' K/D');
+			break;
+		case 'awd9':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var mins = (GM_getValue('hold') || 0);
+			$('#footText').text('Current Record: '+Math.floor(mins/60)+' minutes ' +mins%60+ ' seconds');
+			break;
+		case 'awd10':
+			$(selected).children().removeClass('selec');
+			selected = this;
+			$(this).children().addClass('selec');
+			var stat = (GM_getValue('woDying') || 0);
+			$('#footText').text('Current Record: '+ stat +' captures');
+			break;
+		default:
+			break;
+	}
 }
 
 function getAwards(){ 											// Create html for achievement table
@@ -101,6 +204,7 @@ function getAwards(){ 											// Create html for achievement table
 	var f = parseInt(GM_getValue('maxRank') || 0);
 	var k = parseInt(GM_getValue('maxKD') || 0);
 	var h = parseInt(GM_getValue('hold') || 0);
+    var wd = parseInt(GM_getValue('woDying') || 0);
 	if (c == 3){													// Captures
 		c = 'b';
 	} else if (c == 4){
@@ -182,12 +286,21 @@ function getAwards(){ 											// Create html for achievement table
 	} else {
 		h = 'a';
 	}
-	var awardString = "<tr><td>3/4/5 caps in a game</td><td val='"+c+"' id='award1'></td></tr><tr><td>10/20/30 returns in game</td><td val='"+r+"' id='award2'></td></tr><tr><td>3/5/10 wins in-a-row</td><td val='"+w+"' id='award3'></td></tr><tr><td>5/10/20 pups in a game</td><td val='"+p+"' id='award4'></td></tr><tr><td>10/20/30 tags in a game</td><td val='"+t+"' id='award5'></td></tr><tr><td>2/5/8 prevent minutes</td><td val='"+pr+"' id='award6'></td></tr><tr><td>Get 1st 3/5/8 in-a-row</td><td val='"+f+"' id='award7'></td></tr><tr><td>Achieve K/D of 5/10/20</td><td val='"+k+"' id='award8'></td></tr><tr><td>2/4/7 minutes of hold</td><td val='"+h+"' id='award9'></td></tr>";
+    if (wd == 1){													// Captures
+		wd = 'b';
+	} else if (wd == 2){
+		wd = 's';
+	} else if (wd == 3){
+		wd = 'g';
+	} else {
+		wd = 'a';
+	}
+	var awardString = "<tr id='awd1'><td>3/4/5 caps in a game</td><td val='"+c+"' id='award1'></td></tr><tr id='awd2'><td>10/20/30 returns in game</td><td val='"+r+"' id='award2'></td></tr><tr id='awd3'><td>3/5/10 wins in-a-row</td><td val='"+w+"' id='award3'></td></tr><tr id='awd4'><td>5/10/20 pups in a game</td><td val='"+p+"' id='award4'></td></tr><tr id='awd5'><td>10/20/30 tags in a game</td><td val='"+t+"' id='award5'></td></tr><tr id='awd6'><td>2/5/8 prevent minutes</td><td val='"+pr+"' id='award6'></td></tr><tr id='awd7'><td>Get 1st 3/5/8 in-a-row</td><td val='"+f+"' id='award7'></td></tr><tr id='awd8'><td>Achieve K/D of 5/10/20</td><td val='"+k+"' id='award8'></td></tr><tr id='awd9'><td>2/4/7 minutes of hold</td><td val='"+h+"' id='award9'></td></tr><tr id='awd10'><td>3/4/5 caps without dying</td><td val='"+wd+"' id='award10'></td></tr>";
 	return awardString;
 }
 
 function giveRewards(){												// Hands out trophies on menu
-	for (var i=1; i<10; i++){
+	for (var i=1; i<11; i++){
 		var id = 'award' + i;
 		var achieve = $('#' + id);
 		var category = achieve.attr('val');
@@ -264,8 +377,17 @@ tagpro.ready(function(){
 		} else {
 			var w = 0;
 		}
+        if (c == 1 && po == 0){
+            var wd = 1;
+        } else if(c == 2 && po == 0){
+            var wd = 2;
+        } else if(c >= 3 && po == 0){
+            var wd = 3;
+        } else {
+            var wd = 0;
+        };
 		var stats = {
-			caps: c, rets: r, pups: pu, pops: po, tag: t, won: w, pre: pr, ran: rank, kd: k, hold: h
+			caps: c, rets: r, pups: pu, pops: po, tag: t, won: w, pre: pr, ran: rank, kd: k, hold: h, woDying: wd
 		};
 		return stats;
 	}
@@ -282,7 +404,17 @@ tagpro.ready(function(){
 		var mr = parseInt(GM_getValue('maxRank') || 0);
 		var kd = parseInt(GM_getValue('maxKD') || 0);
 		var h = parseInt(GM_getValue('hold') || 0);
+        var wd = parseInt(GM_getValue('woDying') || 0);
 		var flashed = false;
+        if (stats.woDying > wd){
+			GM_setValue('woDying', stats.woDying);
+			if ((stats.woDying == 1 && wd < 1) || (stats.woDying == 2 && wd<2) || (stats.woDying >= 3 && wd < 3)){			// caps wo dying unlocked
+				if (!flashed){
+					flashAward();
+					flash = true;
+				}
+			}
+		};
 		if (stats.caps > c){
 			GM_setValue('caps', stats.caps);
 			if ((stats.caps > 2 && c < 3) || (stats.caps > 3 && c<4) || (stats.caps > 4 && c < 5)){			// caps unlocked
@@ -377,19 +509,19 @@ tagpro.ready(function(){
 		var text = document.createElement('h3');    // contains 'Achievement'
 		var text2 = document.createElement('h3');   // contains 'Unlocked'
 		$(text).text('Achievement').css({
-			'color':'#562A5A',
+			'color':'#893667',
 			'text-align':'center',
 			'vertical-align':'bottom',
 			'display':'table-cell',
-			'font-size':'150%',
+			'font-size':'130%',
 			'padding-bottom':'10px'
 		});
 		$(text2).text('Unlocked!').css({
-			'color':'#562A5A',
+			'color':'#893667',
 			'text-align':'center',
 			'vertical-align':'middle',
 			'display':'table-row',
-			'font-size':'150%'
+			'font-size':'130%'
 		});
 		$(award).css({
 			'height':'200px',
