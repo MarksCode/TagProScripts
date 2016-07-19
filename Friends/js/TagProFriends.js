@@ -25,15 +25,8 @@ var getInfo = function(){
       if ($.isEmptyObject(args)){
          enterName();
       } else {
-         getFriends(args);
+         makeFriends(args['name']);
       }
-   });
-};
-
-var getFriends = function(args){
-   var name = args['name'];
-   firebase.database().ref('/users/' + name).once('value').then(function(snapshot) {
-      makeFriends(snapshot.val());
    });
 };
 
@@ -47,12 +40,11 @@ var makeFriends = function(data){
    $(friendsText).text('FRIENDS').attr('id', 'friendsText');
    $(friendsHeadDiv).append(friendsText);
    friendsList.id = 'friendsList';
-   var friends = data['friends'];
    $(friendsDiv).append(friendsHeadDiv, friendsList); // Friends Div
    var addFriendDiv = document.createElement('div');
    addFriendDiv.id = 'addFriendDiv';
    var friendPrompt = document.createElement('h3');
-   $(friendPrompt).text('add friend').css('transform', 'translateY(40%)');
+   $(friendPrompt).text('add friend').css({'margin-bottom':'0', 'transform':'translateY(40%)'});
    var addFriendHeader = document.createElement('div');
    $(addFriendHeader).attr('id', 'addFriendHeaderDiv').append(friendPrompt);
    var friendText = document.createElement('input');
@@ -64,22 +56,28 @@ var makeFriends = function(data){
    var spacerDiv = document.createElement('div');
    spacerDiv.id = 'clearDiv';
    $(addFriendDiv).append(addFriendHeader, addFriendContent);
+   $('#FriendMenu').append(friendsDiv, spacerDiv, addFriendDiv);
+   firebase.database().ref('/users/' + data).once('value').then(function(snapshot) {
+      appendFriends(snapshot.val()['friends']);
+      getChat();
+      makeRequests(snapshot.val()['requests']);
+   });
+};
+
+var appendFriends = function(friends){
    if (friends === 'none'){
       $('<p/>', {
          addClass: 'friendItem',
          text: 'Add some friends!'
-      }).appendTo(friendsList);
+      }).appendTo(document.getElementById('friendsList'));
    } else {
       for (friend in friends){
          $('<p/>', {
             addClass: 'friendItem',
             text: friend
-         }).appendTo(friendsList);
+         }).appendTo(document.getElementById('friendsList'));
       }
    }
-   $('#FriendMenu').append(friendsDiv, spacerDiv, addFriendDiv);
-   getChat();
-   makeRequests(data['requests']);
 };
 
 var getChat = function(){
@@ -106,10 +104,8 @@ var makeRequests = function(requests){
    requestsList.id = 'requestsList';
    var requestDiv = document.createElement('div');
    var requestPrompt = document.createElement('h3');
-   $(requestPrompt).text('friend requests').css('transform', 'translateY(40%)').appendTo(requestHead);
-   
+   $(requestPrompt).text('friend requests').css({'margin-bottom':'0', 'transform':'translateY(40%)'}).appendTo(requestHead);
    if (requests === 'none'){
-      
    } else {
       for (request in requests){
          var reqDiv = document.createElement('div');
@@ -120,7 +116,7 @@ var makeRequests = function(requests){
          $(acceptButt).html('✓').addClass('butt inlineItem').attr('id', request).bind('click', acceptFriend).css('float', 'right');
          var declineButt = document.createElement('button');
          $(declineButt).html('X').addClass('butt inlineItem').attr('id', request).bind('click', denyFriend).css('float', 'right');
-         $(reqDiv).append(acceptButt, declineButt);
+         $(reqDiv).append(declineButt, acceptButt);
          $(requestsList).append(reqDiv);
       }
    }
@@ -128,7 +124,32 @@ var makeRequests = function(requests){
 };
 
 var acceptFriend = function(){
-   
+   var friendElem = $(this);
+   var hisName = friendElem.attr('id');
+   $.when(getName()).then(function(args){
+      if ($.isEmptyObject(args)){
+         return;
+      } else {
+         var myName = args['name'];
+         var obj = {};
+         obj[hisName] = true;
+         var obj3 = {};
+         obj3[hisName] = null;
+         firebase.database().ref('/users/' + myName + '/friends').update(obj).then(function(){
+            firebase.database().ref('/users/' + myName + '/requests').update(obj3);
+            var obj2 = {};
+            obj2[myName] = true;
+            firebase.database().ref('/users/' + hisName + '/friends').update(obj2).then(function(){
+               friendElem.parent().remove();
+               $('<p/>', {
+                  addClass: 'friendItem',
+                  text: hisName
+               }).appendTo(document.getElementById('friendsList'));
+               
+            });
+         });
+      }
+   });
 };
 
 var denyFriend = function(){
