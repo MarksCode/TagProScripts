@@ -1,4 +1,4 @@
-var addHomeButton = function (){
+var addHomeButton = function(){
    var button = document.createElement('li');
    $(button).html("<a style='color:#33cc33' href='#'>FRIENDS</a>").attr('id', 'FriendsButton').bind('click', showMenu).insertAfter('#nav-maps');
 };
@@ -15,7 +15,8 @@ var showMenu = function(){
       }).appendTo(headingDiv);
    $(headingDiv).attr('id', 'headingDiv').append(exit);
    $(menu).append(headingDiv);
-   $('body').append(menu);
+   $('body').append(menu).css('box-shadow', 'inset 0 0 490px black');
+   
    initDB();
    getInfo();
 };
@@ -59,7 +60,7 @@ var makeFriends = function(data){
    $('#FriendMenu').append(friendsDiv, spacerDiv, addFriendDiv);
    firebase.database().ref('/users/' + data).once('value').then(function(snapshot) {
       appendFriends(snapshot.val()['friends']);
-      getChat();
+      makeChat();
       makeRequests(snapshot.val()['requests']);
    });
 };
@@ -67,6 +68,7 @@ var makeFriends = function(data){
 var appendFriends = function(friends){
    if (friends === 'none'){
       $('<p/>', {
+         id: 'defaultFriend',
          addClass: 'friendItem',
          text: 'Add some friends!'
       }).appendTo(document.getElementById('friendsList'));
@@ -75,13 +77,9 @@ var appendFriends = function(friends){
          $('<p/>', {
             addClass: 'friendItem',
             text: friend
-         }).appendTo(document.getElementById('friendsList'));
+         }).appendTo(document.getElementById('friendsList')).bind('click', friendSelected.changeFriend);
       }
    }
-};
-
-var getChat = function(){
-   makeChat();
 };
 
 var makeChat = function(){
@@ -92,8 +90,12 @@ var makeChat = function(){
    $(chatHeadText).text('CHAT').attr('id', 'chatHeadText').appendTo(chatHead);
    var chatContent = document.createElement('div');
    chatContent.id = 'chatContentDiv';
+   var chatInput = document.createElement('textarea');
+   $(chatInput).attr({'id': 'chatInput'}).bind('keypress', function(which){
+      if (which.keyCode == 13){ sendMessage($(this).val());}     
+   });
    var chatFooter = document.createElement('div');
-   chatFooter.id = 'chatFooter';
+   $(chatFooter).attr('id', 'chatFooter').append(chatInput);
    $(chatDiv).attr('id', 'chatDiv').append(chatHead, chatContent, chatFooter).insertAfter('#friendsDiv');
 };
 
@@ -123,6 +125,18 @@ var makeRequests = function(requests){
    $(requestDiv).attr('id', 'requestDiv').append(requestHead, requestsList).insertAfter('#addFriendDiv');
 };
 
+var sendMessage = function(msg){
+   var hisName = friendSelected.getFriend();
+   $.when(getName()).then(function(args){
+      if ($.isEmptyObject(args)){
+         return;
+      } else {
+         var chatroom = args['name'] > hisName ? 'chats/chat_'+hisName+'_'+args['name'] : 'chats/chat_'+args['name']+'_'+hisName;
+         firebase.database().ref(chatroom).push(msg);
+      }
+   });
+}
+
 var acceptFriend = function(){
    var friendElem = $(this);
    var hisName = friendElem.attr('id');
@@ -135,25 +149,47 @@ var acceptFriend = function(){
          obj[hisName] = true;
          var obj3 = {};
          obj3[hisName] = null;
-         firebase.database().ref('/users/' + myName + '/friends').update(obj).then(function(){
-            firebase.database().ref('/users/' + myName + '/requests').update(obj3);
-            var obj2 = {};
-            obj2[myName] = true;
-            firebase.database().ref('/users/' + hisName + '/friends').update(obj2).then(function(){
-               friendElem.parent().remove();
-               $('<p/>', {
-                  addClass: 'friendItem',
-                  text: hisName
-               }).appendTo(document.getElementById('friendsList'));
-               
-            });
+         firebase.database().ref('/users/' + myName + '/requests').once('value', function(snapshot){
+            if (snapshot.hasChild(hisName)){                                                                // check request exists
+               firebase.database().ref('/users/' + myName + '/friends').update(obj).then(function(){        // add user to my friends
+                  firebase.database().ref('/users/' + myName + '/requests').update(obj3);                   // remove request
+                  var obj2 = {};
+                  obj2[myName] = true;
+                  firebase.database().ref('/users/' + hisName + '/friends').update(obj2).then(function(){   // add me to user
+                     friendElem.parent().remove();
+                     $('#defaultFriend').remove();
+                     $('<p/>', {
+                        addClass: 'friendItem',
+                        text: hisName
+                     }).appendTo(document.getElementById('friendsList')).bind('click', friendSelected.changeFriend);
+                     
+                  });
+               });
+            };
          });
-      }
+      };
    });
 };
 
 var denyFriend = function(){
-   
+   var friendElem = $(this);
+   var hisName = friendElem.attr('id');
+   $.when(getName()).then(function(args){
+      if ($.isEmptyObject(args)){
+         return;
+      } else {
+         var myName = args['name'];
+         firebase.database().ref('/users/' + myName + '/requests').once('value', function(snapshot){
+            if (snapshot.hasChild(hisName)){                                                                // check request exists
+               var obj = {};
+               obj[hisName] = null;
+               firebase.database().ref('/users/' + myName + '/requests').update(obj).then(function(){
+                  friendElem.parent().remove();
+               });
+            };
+         });
+      };
+   });
 };
 
 var enterName = function(){
@@ -209,6 +245,42 @@ var setName = function(){
       });
    }
 };
+
+var friendSelected = (function(){
+   var selected;
+   var pub = {};
+   var hisName;
+   var isFriendSelected = false;
+   pub.isFriendSet = function(){
+      return isFriendSelected;
+   };
+   pub.getFriend = function(){
+      return hisName;
+   };
+   pub.changeFriend = function(){
+      isFriendSelected = true;
+      $(selected).removeClass('friendSelected');
+      selected = this;
+      this.className = 'friendSelected';
+      hisName = $(this).text();
+      $.when(getName()).then(function(args){
+         if ($.isEmptyObject(args)){
+            return;
+         } else {
+            var chatroom = args['name'] > hisName ? 'chats/chat_'+hisName+'_'+args['name'] : 'chats/chat_'+args['name']+'_'+hisName;
+            firebase.database().ref(chatroom).on('value', function(snapshot){
+               for (var msg in snapshot.val()){
+                  $('<p/>', {
+                     text: snapshot.val()[msg]
+                  }).appendTo('#chatContentDiv');
+               
+               };
+            });
+         };
+      });
+   };
+   return pub;
+}());
 
 var hideMenu = function(){
    chrome.storage.local.clear(function() {
